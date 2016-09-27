@@ -8,23 +8,24 @@ import numpy as np
 def getWML(phis, X, t):
 	M,N = len(phis), len(X)
 	Phi = np.asmatrix([[phis[j](X[i]) for j in range(M)] for i in range(N)])
+	print(Phi)
 	PSI = ((Phi.T*Phi).I)*(Phi.T)
-	t = np.asmatrix(t).T
+	print(PSI)
+	t = vmat(t)
 	return PSI*t
 
 def getWRidge(phis, X, t, lbd):
 	M,N = len(phis), len(X)
 	Phi = np.asmatrix([[phis[j](X[i]) for j in range(M)] for i in range(N)])
-	PSI = ((Phi.T*Phi).I + lbd*np.identity(M))*(Phi.T)
+	PSI = ((lbd*np.identity(M)+Phi.T*Phi).I)*(Phi.T)
 	t = np.asmatrix(t).T
 	return PSI*t
-
 
 def apply(f, n):
 	return lambda x: f(x,n)
 
 def linearSum(w, phis):
-	return (lambda x: sum([w[i]*phis[i](x) for i in range(len(w))]))
+	return (lambda x: sum([float(w[i])*phis[i](x) for i in range(len(w))]))
 
 def getBasis(M, f):
 	return [apply(f,n) for n in range(M)]
@@ -35,12 +36,22 @@ def poly(x,n):
 def cosn(x,n):
 	return np.cos(n*math.pi*x)
 
+def vmat(v):
+	return np.asmatrix(v).T
+
+def SSE(f, X, Y):
+	ret = 0 
+	for (x,y) in zip(X,Y):
+		ret += (f(x) - y)**2
+	return ret
+
 def P2(M, F):
 	X,Y = load2.getData(False)
-	wml = getWML(getBasis(M,F), X,Y)
+	wml = getWML(getBasis(M,F), X, Y)
+	print(wml)
 	est = linearSum(wml,getBasis(M,F))
 	xml   = np.arange(0,1,0.01)
-	yml   = np.array(est(xml)).reshape(-1)
+	yml   = np.array(est(xml))
 	yac   = np.cos(math.pi*xml) + np.cos(2*math.pi*xml)
 
 	plt.plot(X,Y,'o')
@@ -48,28 +59,55 @@ def P2(M, F):
 	plt.plot(xml,yac)
 	plt.xlabel('x')
 	plt.ylabel('y')
-	plt.show()
+	plt.savefig('P2_'+str(M)+'_'+str(F)+'.png')
+	plt.close()
 
-def P3_1(M, lbd):
+def P3(M, lbd, dataFunc, plot = True, part1 = False):
 	F = poly
-	X,Y = load2.getData(False)
+	X,Y = dataFunc()
 	wml = getWRidge(getBasis(M,F), X,Y, lbd)
 	est = linearSum(wml,getBasis(M,F))
-	xml   = np.arange(0,1,0.01)
-	yml   = np.array(est(xml)).reshape(-1)
-	yac   = np.cos(math.pi*xml) + np.cos(2*math.pi*xml)
+	xml   = np.arange(min(X),max(X),0.01)
+	yml   = np.array(est(xml))
 
-	plt.plot(X,Y,'o')
-	plt.plot(xml,yml)
-	plt.plot(xml,yac)
-	plt.xlabel('x')
-	plt.ylabel('y')
-	plt.savefig('P3_1_'+str(M)+'_'+str(lbd)+'.png')
-	plt.close()
-	
-P2(8,poly)
-P3_1(8,0)
-P3_1(8,0.005)
-P3_1(8,0.05)
-P3_1(8,1)
+	fname = 'P3_'+str(M)+'_'+str(lbd)+'_'+str(dataFunc.__name__)+'.png'
 
+	print(fname, SSE(est,X,Y))
+
+	if plot:
+		plt.plot(X,Y,'o')
+		plt.plot(xml,yml)
+		if part1:
+			yac   = np.cos(math.pi*xml) + np.cos(2*math.pi*xml)
+			plt.plot(xml,yac)
+		plt.xlabel('x')
+		plt.ylabel('y')
+
+		plt.savefig(fname)
+		plt.close()
+
+	return est
+
+def validate(f, dataFunc, plot = True):
+	X,Y = dataFunc()
+	xml   = np.arange(min(X),max(X),0.01)
+	yml   = np.array(f(xml)).reshape(-1)
+
+	fname = 'Testing_'+str(dataFunc.__name__)+'.png'
+	err = SSE(f,X,Y)
+	print(fname, err)
+
+	if plot:
+		plt.plot(X,Y,'o')
+		plt.plot(xml,yml)
+		plt.xlabel('x')
+		plt.ylabel('y')
+
+		plt.savefig(fname)
+		plt.close()
+
+	return err
+
+f = P3(1, 0.0001, load3.regressAData)
+
+validate(f, load3.validateData)
