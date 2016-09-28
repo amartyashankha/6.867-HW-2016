@@ -45,6 +45,20 @@ def SSE(f, X, Y):
 		ret += (f(x) - y)**2
 	return ret
 
+def SSE_vec_fn(phi, X, Y):
+	def sse(w):
+		ret = 0 
+		for (x,y) in zip(X,Y):
+			ret += (f(x) - y)**2
+		return ret
+
+def SSE_grad(f, X, Y):
+	ret = 0 
+	for (x,y) in zip(X,Y):
+		ret += (f(x) - y)**2
+	return ret
+
+
 def P2(M, F):
 	X,Y = load2.getData(False)
 	wml = getWML(getBasis(M,F), X, Y)
@@ -108,6 +122,6 @@ def validate(f, dataFunc, plot = True):
 
 	return err
 
-f = P3(1, 0.0001, load3.regressAData)
+f = P3(10, 0.5, load3.regressAData)
 
 validate(f, load3.validateData)
