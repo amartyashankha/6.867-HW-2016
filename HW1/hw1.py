@@ -6,6 +6,9 @@ import P3.regressData as load3
 import numpy as np
 import grad_desc as gd
 
+plt.style.use('fivethirtyeight')
+plt.rcParams['axes.facecolor'] = 'white'
+
 def getWML(phis, X, t):
 	M,N = len(phis), len(X)
 	Phi = np.asmatrix([[phis[j](X[i]) for j in range(M)] for i in range(N)])
@@ -66,12 +69,14 @@ def P2(M, F):
 	yml   = np.array(est(xml))
 	yac   = np.cos(math.pi*xml) + np.cos(2*math.pi*xml)
 
-	plt.plot(X,Y,'o')
+	plt.plot(X,Y,'o', markersize = 12, markeredgewidth=2 ,markeredgecolor= 'b', markerfacecolor = 'none')
 	plt.plot(xml,yml)
 	plt.plot(xml,yac)
 	plt.xlabel('x')
 	plt.ylabel('y')
-	plt.savefig('P2_'+str(M)+'_'+str(F)+'.png')
+	axes = plt.gca()
+	axes.set_ylim([-2,3])
+	plt.savefig('P2_'+str(M)+'_'+str(F.__name__)+'.png')
 	plt.close()
 
 	return wml
@@ -151,4 +156,9 @@ def P2_2(M, F, point = None):
 #validate(f, load3.validateData)
 
 #Problem 2.2
-P2_2(5,poly)
+#P2_2(5,poly)
+
+P2(1,poly)
+P2(2,poly)
+P2(4,poly)
+P2(11,poly)
