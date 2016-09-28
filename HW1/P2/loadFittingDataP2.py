@@ -7,8 +7,8 @@ def getData(ifPlotData=False):
 
     data = pl.loadtxt('P2/curvefittingp2.txt')
 
-    X = data[0,:].T
-    Y = data[1,:].T
+    X = data[0,:]
+    Y = data[1,:]
 
     if ifPlotData:
         plt.plot(X,Y,'o')
