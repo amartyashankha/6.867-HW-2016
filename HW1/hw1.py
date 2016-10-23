@@ -71,6 +71,7 @@ def P2(M, F, F2 = None):
     wml = getWML(getBasis(M,F), X, Y)
     print(wml)
     est = linearSum(wml,getBasis(M,F))
+    print(SSE(est,X,Y))
     xml   = np.arange(0,1,0.01)
     yml   = np.array(est(xml))
     yac   = np.cos(math.pi*xml) + np.cos(2*math.pi*xml)
@@ -80,6 +81,7 @@ def P2(M, F, F2 = None):
     if F2:
         wml2 = getWML(getBasis(M,F2), X, Y)
         est = linearSum(wml2,getBasis(M,F2))
+        print(SSE(est,X,Y))
         yml   = np.array(est(xml))
         plt.plot(xml,yml, label = 'Cosine basis regression')
     plt.plot(X,Y,'o', markersize = 12, markeredgewidth=2 ,markeredgecolor= '#1e8c19', markerfacecolor = 'none', label = 'Training data')
@@ -96,27 +98,87 @@ def P2(M, F, F2 = None):
 
     return wml
 
-def P3(M, lbd, dataFunc, plot = True, part1 = False):
+def P3_1(M, lbds, dataFunc):
     F = poly
-    X,Y = dataFunc()
-    wml = getWRidge(getBasis(M,F), X,Y, lbd)
-    est = linearSum(wml,getBasis(M,F))
+    X,Y = getData()
+
     xml   = np.arange(min(X),max(X),0.01)
-    yml   = np.array(est(xml))
+    for lbd in lbds:
+        wml = getWRidge(getBasis(M,F), X,Y, lbd)
+        est = linearSum(wml,getBasis(M,F))
+        yml   = np.array(est(xml))
+        print(SSE(est,X,Y))
+        plt.plot(xml,yml, label = 'lambda = '+str(lbd))
 
-    fname = 'P3_'+str(M)+'_'+str(lbd)+'_'+str(dataFunc.__name__)+'.png'
+    yac   = np.cos(math.pi*xml) + np.cos(2*math.pi*xml)
+    plt.plot(xml,yac, label = 'Actual function', ls ='--')
+    plt.plot(X,Y,'o', markersize = 12, markeredgewidth=2 ,markerfacecolor = 'none', label = 'Training data')
+    plt.legend()
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Ridge regression for M = '+str(M-1))
+    axes = plt.gca()
+    axes.grid(False)
 
-    print(fname, SSE(est,X,Y))
+    fname = 'P312.png'
+    plt.savefig(fname)
+    plt.close()
 
+    return est
+
+def P3_2(Ms, lbds, train, test, val, plotv = False, plot = False):
+    F = poly
+    X,Y = train()
+    X2,Y2 = test()
+    X3,Y3 = val()
+    print(len(X),len(Y))
+    print(len(X2),len(Y2))
+    print(len(X3),len(Y3))
+
+    xml   = np.arange(-3,3,0.01)
+    Mbest, Lbest, SSEbest = None, None, 1e10
+    for M in Ms:
+        for lbd in lbds:
+            wml = getWRidge(getBasis(M,F), X,Y, lbd)
+            est = linearSum(wml,getBasis(M,F))
+            sse = SSE(est,X3,Y3)
+
+            if sse<SSEbest:
+                SSEbest = sse
+                Mbest = M
+                Lbest = lbd
+                #print("Try: ",sse, M, lbd)
+
+            if plotv:
+                yml   = np.array(est(xml))
+                plt.plot(xml,yml, label = 'lambda = '+str(lbd)+', M = '+str(M-1))
+
+    wml = getWRidge(getBasis(Mbest,F), X,Y, Lbest)
+    est = linearSum(wml,getBasis(Mbest,F))
+
+    sse_test = SSE(est, X2, Y2)
+
+    print("Best: ",SSEbest, Mbest, Lbest, sse_test)
     if plot:
-        plt.plot(X,Y,'o')
-        plt.plot(xml,yml)
-        if part1:
-            yac   = np.cos(math.pi*xml) + np.cos(2*math.pi*xml)
-            plt.plot(xml,yac)
+        yml   = np.array(est(xml))
+        plt.plot(xml,yml, label = 'lambda = '+str(Lbest)+', M = '+str(Mbest-1))
+        plt.plot(X2,Y2,'o', markersize = 12, markeredgewidth=2 , label = 'Testing data')
+        plt.plot(X3,Y3,'o', markersize = 12, markeredgewidth=2 ,markerfacecolor = 'none', label = 'Validation data')
+        plt.plot(X,Y,'o', markersize = 12, markeredgewidth=2 ,label = 'Training data')
+
+    if plotv:
+        plt.plot(X3,Y3,'o', markersize = 12, markeredgewidth=2 ,markerfacecolor = 'none', label = 'Validation data')
+
+    if plot or plotv:
+        plt.legend(loc = 4)
         plt.xlabel('x')
         plt.ylabel('y')
+        plt.title('Ridge regression trained on '+str(train.__name__[7]))
+        axes = plt.gca()
+        axes.grid(False)
+        axes.set_ylim([-3,3])
 
+        fname = 'P33'+str(train.__name__[7])+'.png'
         plt.savefig(fname)
         plt.close()
 
@@ -203,8 +265,8 @@ def gen_p24():
 
 #    plt.xlabel('i')
     #plt.ylabel('$w_i$')
-    plt.title('Most likely weights for M=8')
-    plt.bar(lefts, wml, align = 'center', tick_label = lefts)
+    plt.title('Maximum likelihood weights for M=8')
+    plt.bar(lefts, wml, align = 'center', tick_label = lefts, alpha = 0.4)
     axes = plt.gca()
     axes.set_ylim([0,1])
     axes.grid(False)
@@ -217,12 +279,29 @@ def gen_p24():
 #    plt.xlabel('i')
 #    plt.ylabel('$w_i$')
     plt.title('Actual weights')
-    plt.bar(lefts, true, align = 'center', tick_label = lefts)
+    plt.bar(lefts, true, align = 'center', tick_label = lefts, alpha = 0.4)
     axes = plt.gca()
     axes.grid(False)
     axes.set_ylim([0,1])
     plt.savefig('bar2.png')
     plt.close()
 
+def gen_p31():
+    lbds = [0, 0.001, 0.05,1]
+    P3_1(3, lbds, load2.getData)
+    P3_1(11, lbds, load2.getData)
+
+def gen_p32():
+    Ms = range(1,15)
+    lbds = np.arange(0,1,0.001)
+    P3_2(Ms, lbds, load3.regressAData, load3.regressBData, load3.validateData, plot = True)
+    P3_2(Ms, lbds, load3.regressBData, load3.regressAData, load3.validateData, plot = True)
+
+def gen_p33():
+    Ms = [10,3]
+    lbds = [0,0.5]
+    P3_2(Ms, lbds, load3.regressAData, load3.regressBData, load3.validateData, plotv = True)
+    P3_2(Ms, lbds, load3.regressBData, load3.regressAData, load3.validateData, plotv = True)
 
 gen_p24()
+
