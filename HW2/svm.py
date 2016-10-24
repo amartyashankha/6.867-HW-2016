@@ -43,7 +43,6 @@ def svm(X, Y, ker = innerProd, C = None, fname = None):
 
     for i in range(n):
         for j in range(n):
-            #print(Y[i], ker(X[i],X[j]), Y[j])
             K[i,j] = Y[i] * ker(X[i], X[j]) * Y[j]
 
     P = matrix(K)
