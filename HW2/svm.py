@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import scipy.optimize
 import pylab as pl
 from cvxopt import matrix, solvers
+from plotBoundary import plotDecisionBoundary
 
 plt.style.use('fivethirtyeight')
 plt.rcParams['axes.facecolor'] = 'white'
@@ -24,12 +25,6 @@ def gaussianKer(gamma):
 def computeFromSupports(x, X, Y, ker, alpha, b, n):
     return sum([Y[i]*ker(x,X[i])*alpha[i] for i in range(n)]) + b
 
-def getClassifier(X, Y, ker, alpha, b, n):
-    def f(x0, X1):
-        x = np.hstack([x0,X1])
-        return computeFromSupports(x, X, Y, ker, alpha, b, n)
-    return f
-
 def getScoreFn(X, Y, ker, alpha, b, n):
     def f(x):
         return computeFromSupports(x, X, Y, ker, alpha, b, n)
@@ -37,7 +32,7 @@ def getScoreFn(X, Y, ker, alpha, b, n):
 
 
 
-def svm(X, Y, ker = innerProd, C = None, fname = None):
+def svm(X, Y, ker = innerProd, C = None):
     n = X.shape[0]
     K = np.zeros((n,n))
 
@@ -57,8 +52,11 @@ def svm(X, Y, ker = innerProd, C = None, fname = None):
         G = matrix(-np.identity(n))
         h = matrix(np.zeros(n))
     
+    solvers.options['show_progress'] = False
     solution = solvers.qp(P, q, G, h, A, b)
     alpha = (np.array(solution['x']).T)[0]
+
+    print "alpha: ", alpha
 
     b = 0
 
@@ -70,53 +68,22 @@ def svm(X, Y, ker = innerProd, C = None, fname = None):
         b = Y[i] - computeFromSupports(X[i], X, Y, ker, alpha, 0, n)
         break
 
-    w = sum([Y[i]*X[i]*alpha[i] for i in range(n)]) + b
-    
-    cls = getClassifier(X, Y, ker, alpha, b, n)
-    
-    if fname:
-        x1 = []
-        x2 = []
-        y1 = []
-        y2 = []
-
-        for i in range(n):
-            if Y[i] > 0:
-                y2.append(X[i,1])
-                x2.append(X[i,0])
-            else:
-                y1.append(X[i,1])
-                x1.append(X[i,0])
-
-        plt.plot(x1,y1,'o')
-        plt.plot(x2,y2,'o')
-
-        xl = []
-        yl = []
-
-        for i in np.arange(-4, 3, 0.1):
-            try:
-                j =  scipy.optimize.brentq(partial(cls, i), -1000, 1000)
-            except ValueError:
-                pass
-            else:
-                xl.append(i)
-                yl.append(j)
-
-        plt.plot(xl,yl)
-
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.savefig(fname)
+    svs = 0
+    for i in range(n):
+        if (alpha[i] > THRESH) and (not C or alpha[i] > (C-THRESH)):
+            svs +=1
+    print "Support vectors: ",svs
+        
+    w = sum([Y[i]*X[i]*alpha[i] for i in range(n)]) 
+    gm = 1/np.sqrt(w*w.T)
+    print "Geometric margin: ",gm
 
     return getScoreFn(X, Y, ker, alpha, b, n)
 
-def P21():
+def test():
     X = np.matrix([[2,2],[2,3],[0,-1],[-3,-2]])
     Y = np.array([1,1,-1,-1])
-    svm(X,Y, plot = True)
+    cls = svm(X,Y)
+    plotDecisionBoundary(X,Y,cls, [-1,0,1], title = 'SVM', fname = 'svm_small')
 
-def P21p():
-    X = np.matrix([[2,2],[2,3],[0,-1],[-3,-2], [2,1.9]])
-    Y = np.array([1,1,-1,-1, -1])
-    svm(X,Y, C = 0.01, plot = True)
+#test()

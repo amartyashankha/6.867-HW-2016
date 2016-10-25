@@ -1,3 +1,5 @@
 Notes/
 *.pyc
 .ipynb*
+*.png
+*.out
