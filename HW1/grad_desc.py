@@ -105,7 +105,8 @@ class SGD(object):
             if stochastic:
                 idx = np.random.randint(self.X.shape[0], size=minibatch_size)
             
-            grad = self.compute_gradient(theta, idx)
+            grad = self.compute_gradient(theta, idx)	    
+            #print(theta)
             
             if stepSize:
                 step_size = stepSize
@@ -119,13 +120,17 @@ class SGD(object):
             
             if abs(prev_objective-tmp) < ftol:
                 print("Converged f")
+                print(abs(prev_objective-tmp))
                 break
+
             if np.linalg.norm(self.compute_gradient(theta)) < gtol:
                 print("Converged g")
                 break
             
             prev_objective = tmp
             t += 1.0
+            #if t % 10000 == 0:
+                #print(theta)
             if t > 100000:
                 print("t too high")
                 break

@@ -16,19 +16,22 @@
 
 
 
+\usepackage{graphicx}
+\usepackage[caption=false]{subfig}
 % The following packages can be found on http:\\www.ctan.org
 %\usepackage{graphics} % for pdf, bitmapped graphics files
 %\usepackage{epsfig} % for postscript graphics files
 %\usepackage{mathptmx} % assumes new font selection scheme installed
 %\usepackage{times} % assumes new font selection scheme installed
-%\usepackage{amsmath} % assumes amsmath package installed
-%\usepackage{amssymb}  % assumes amsmath package installed
+\usepackage{amsmath} % assumes amsmath package installed
+\usepackage{amssymb}  % assumes amsmath package installed
 
 \title{\LARGE \bf
 Numerical Methods for Estimation Problems
 }
 
 \begin{document}
+
 
 
 
@@ -58,16 +61,80 @@ We will now examine regression models that use a linear combination of arbitrary
 
 We first try linear regression with a simple polynomial basis $\phi_0(x)=1$, $\phi_1(x) = x$, $\ldots$ , $\phi_M(x) = x^M$. Note that for a given $M$ there are $M+1$ basis functions. 
 
-For $M=0$, the result is a constant function. We can simplify the closed-form solution above to see that this is simply the mean of all the observations. As $M$ increases, sum of squares error decreases and our estimate function comes closer to the points (Figure x). However, if $M$ becomes too high, we see a tendency to overfit. The estimate curve goes through all the training points, resulting in zero error, but it would fare poorly if tested on more data from the underlying distribution. 
+For $M=0$, the result is a constant function. We can simplify the closed-form solution above to see that this is simply the mean of all the observations. As $M$ increases, sum of squares error decreases and our estimate function comes closer to the points (Figure \ref{fig2_1}). 
 
-This demonstrates the need to restrict the complexity of our possible model to the amount of training data at our disposal.
+As the value of $M$ increases, we see a greater tendency to overfit. At $M=10$ the fitted curve goes through all the training points, resulting in zero error. This is not ideal, because the fitted curve does not generalize to test data, and would perform poorly if we tested it against more samples from the distribution.
+
+This demonstrates the need to restrict the complexity of our model class to the amount of training data at our disposal.
+
+   \begin{figure}[thpb]
+      \subfloat[$M = 0$] {
+        \includegraphics[width=125px]{figs/P2_1_poly.png}
+      }
+      \subfloat[$M = 1$] {
+        \includegraphics[width=125px]{figs/P2_2_poly.png}
+      }
 
 
-\subsection{Maintaining the Integrity of the Specifications}
+      \subfloat[$M = 3$] {
+        \includegraphics[width=125px]{figs/P2_4_poly.png}
+      }
+      \subfloat[$M = 5$] {
+        \includegraphics[width=125px]{figs/P2_6_poly.png}
+      }
 
-The template is used to format your paper and style the text. All margins, column widths, line spaces, and text fonts are prescribed; please do not alter them. You may note peculiarities. For example, the head margin in this template measures proportionately more than is customary. This measurement and others are deliberate, using specifications that anticipate your paper as one part of the entire proceedings, and not as an independent document. Please do not revise any of the current designations
+      \subfloat[$M = 7$] {
+        \includegraphics[width=125px]{figs/P2_8_poly.png}
+      }
+      \subfloat[$M = 10$] {
+        \includegraphics[width=125px]{figs/P2_11_poly.png}
+      }
+      \caption{Polynomials of orders $M$, shown in red, fitted to training data, shown as blue circles. The yellow curve shows the functin $y(x) = \cos(\pi x) + \cos(2\pi x)$ used to generate the data.}
+      \label{fig2_1}
+   \end{figure}
 
-\section{MATH}
+\subsection{Closed-form and numerical derivative of SSE}
+
+Given a weight vector $w$, $M+1$ basis functions $\phi_0(x)$, $\phi_1(x) \ldots \phi_M(x)$ and a data set $(x_1,y_1)$, $(x_2,y_2)\ldots (x_n,y_n)$ we know that the sum of squares function is
+
+\begin{equation}
+ \text{SSE}(w) = \sum_{i=1}^{n} \left( y_i - \boldsymbol{w}^T \phi(x_i) \right)^2
+\end{equation}
+
+Here, the vector $\phi(x_i)$ is defined as $$\phi(x_i) = \begin{bmatrix}\phi_0(x_i) &  \phi_1(x_i) & \ldots & \phi_M(x_i)\end{bmatrix}^T$$
+
+Taking the gradient of the SSE function w.r.t. $w$, we get
+
+\begin{equation}
+ \nabla \text{SSE}(w) = \sum_{i=1}^{n} 2\left( y_i - \boldsymbol{w}^T \phi(x_i) \right)\phi(x_i)^T
+\end{equation}
+
+We verified this closed form solution by using the numerical derivative from section I. At point $w_{ml}$ (the most-likely weight vector we obtained in the previous section) we know that the gradient is supposed to be 0. We verified that our closed-form and numeric gradient at this point were also near 0. The results are tabulated in Table \ref{grad_t}. Note that our results become imprecise as the value of $M$ increases. We also checked that the gradients were equal at other points.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|c||c|c|}
+\hline
+M & $|\nabla_{\text{closed-form}}|$ & $|\nabla_{\text{numeric}}|$ \\
+\hline
+\hline
+1 & $4.1\times10^{-15}$ & $2.5\times10^{-7}$ \\
+\hline
+2 & $5.5\times10^{-14}$ & $1.9\times10^{-7}$\\
+\hline
+4 & $3.4\times10^{-11}$ & $1.2\times10^{-7}$ \\
+\hline
+10 & 0.348 & 0.347 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Norm of gradients at various values of $M$}
+\label{grad_t}
+\end{table}
+
+\section{Solution using Gradient Descent}
+
+Using Gradient Descent for this problem turned out to be harder than anticipated. For $M=3$ and lower, the gradient descent algorithm converged 
 
 Before you begin to format your paper, first write and save the content as a separate text file. Keep your text and graphic files separate until after the text has been formatted and styled. Do not use hard tabs, and limit use of hard returns to only one return at the end of a paragraph. Do not add any kind of pagination anywhere in the paper. Do not number text heads-the template will do that for you.
 
