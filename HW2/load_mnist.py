@@ -1,10 +1,6 @@
 import numpy as np
 
-tr_size = 200
-tst_size = 150
-val_size = 150
-
-def load(setA, setB):
+def load(setA, setB, tr_size = 200, tst_size = 150, val_size = 150):
     trainX = []
     trainY = []
 

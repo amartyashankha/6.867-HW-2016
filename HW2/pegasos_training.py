@@ -2,7 +2,7 @@ import numpy as np
 
 def train_linearSVM(X, Y, L, max_epochs=200, step_size = 1e-1):
     t = 0  
-    X = np.concatenate((np.ones([400,1]), X), axis=1)
+    X = np.concatenate((np.ones([X.shape[0],1]), X), axis=1)
     w = np.zeros(len(X[0]))
     for epoch in range(max_epochs):
         for i in range(len(X)):

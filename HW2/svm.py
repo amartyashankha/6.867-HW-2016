@@ -11,7 +11,7 @@ plt.rcParams['axes.facecolor'] = 'white'
 plt.rcParams['axes.edgecolor'] = 'black'
 plt.rcParams['figure.autolayout'] = 'true'
 
-THRESH = 1e-5
+THRESH = 1e-7
 
 def innerProd(x1, x2):
     return np.asscalar(x1*(x2.T))
@@ -51,12 +51,17 @@ def svm(X, Y, ker = innerProd, C = None):
     else:
         G = matrix(-np.identity(n))
         h = matrix(np.zeros(n))
+
+    #print P
     
     solvers.options['show_progress'] = False
+    #solvers.options['abtol'] = 1e-15
+    #solvers.options['reltol'] = 1e-14
+    #solvers.options['feastol'] = 1e-14
     solution = solvers.qp(P, q, G, h, A, b)
     alpha = (np.array(solution['x']).T)[0]
 
-    print "alpha: ", alpha
+    #print "alpha: ", alpha
 
     b = 0
 
@@ -68,15 +73,15 @@ def svm(X, Y, ker = innerProd, C = None):
         b = Y[i] - computeFromSupports(X[i], X, Y, ker, alpha, 0, n)
         break
 
-    svs = 0
-    for i in range(n):
-        if (alpha[i] > THRESH) and (not C or alpha[i] > (C-THRESH)):
-            svs +=1
-    print "Support vectors: ",svs
+    #svs = 0
+    #for i in range(n):
+    #    if (alpha[i] > THRESH) and (not C or alpha[i] > (C-THRESH)):
+    #        svs +=1
+    #print "Support vectors: ",svs
         
-    w = sum([Y[i]*X[i]*alpha[i] for i in range(n)]) 
-    gm = 1/np.sqrt(w*w.T)
-    print "Geometric margin: ",gm
+    #w = sum([Y[i]*X[i]*alpha[i] for i in range(n)]) 
+    #gm = 1/np.sqrt(w*w.T)
+    #print "Geometric margin: ",gm
 
     return getScoreFn(X, Y, ker, alpha, b, n)
 
@@ -85,5 +90,3 @@ def test():
     Y = np.array([1,1,-1,-1])
     cls = svm(X,Y)
     plotDecisionBoundary(X,Y,cls, [-1,0,1], title = 'SVM', fname = 'svm_small')
-
-#test()
