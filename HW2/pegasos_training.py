@@ -1,17 +1,23 @@
 import numpy as np
+import copy
 
-def train_linearSVM(X, Y, L, max_epochs=200, step_size = 1e-1):
+def train_linearSVM(X, Y, L, max_epochs=200, step_size = 1e-1, threshold=1e-2):
     t = 0  
     X = np.concatenate((np.ones([400,1]), X), axis=1)
     w = np.zeros(len(X[0]))
+    prev = copy.copy(w)
     for epoch in range(max_epochs):
         for i in range(len(X)):
             t += 1
             step_size = 1/(t*L)
             multiplier = np.array([1.]+[1.-step_size*L for j in range(len(w)-1)])
             w *= multiplier
-            if Y[i]*(w.dot(X[i])) < 1:
+            if Y[i]*(w.dot(X[i])) < 2:
                 w += step_size*Y[i]*X[i]
+        if np.linalg.norm(w-prev) < threshold:
+            print 'Ran for', epoch, 'epochs'
+            break
+        prev = copy.copy(w)
     return w
 
 
