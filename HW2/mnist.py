@@ -101,8 +101,8 @@ def part3_1():
     C = 1
     ker = innerProd
     sizes = np.arange(50, 1000, 50)
-    lambdas = [None, 0.2, 0.02, 2]
-    epochs = [None, 50, 50, 50]
+    lambdas = [None, 0.02, 0.2, 0.5]
+    epochs = [None, 100, 100, 100]
     (trainX, trainY, testX, testY, valX, valY) = load(setA, setB, tr_size=1000,tst_size=0,val_size =0)
 
     for (lbd, epoch) in zip(lambdas,epochs):
@@ -134,21 +134,39 @@ def part3_2():
     C = 1
     ker = innerProd
     sizes = np.arange(50, 1000, 50)
-    lambdas = [None, 0.2, 0.02, 2]
-    epochs = [None, 25, 25, 25]
+    lambdas = [None, 0.2, 0.02, 0.5]
+    epochs = [None, 100, 100, 100]
 
-    for setA in setsA:
-        for setB in setsB:
-            print "========================"
-            print setA, setB
-            (trainX, trainY, testX, testY, valX, valY) = load(setA, setB)
-            for (lbd, epoch) in zip(lambdas,epochs):
-                cls = None
-                if lbd:
-                    cls = getPegasosFn(train_linearSVM(trainX, trainY, lbd, max_epochs = epoch))
-                else:
-                    cls = svm(np.matrix(trainX),np.asarray(trainY.T), C = 1, ker = innerProd)
-                print lbd, errorRate(cls,valX, valY)
+    for (setA,setB) in zip(setsA,setsB):
+        print "========================"
+        print setA, setB
+        (trainX, trainY, testX, testY, valX, valY) = load(setA, setB)
+        for (lbd, epoch) in zip(lambdas,epochs):
+            cls = None
+            if lbd:
+                cls = getPegasosFn(train_linearSVM(trainX, trainY, lbd, max_epochs = epoch))
+            else:
+                cls = svm(np.matrix(trainX),np.asarray(trainY.T), C = 1, ker = innerProd)
+            print lbd, errorRate(cls,valX, valY)
+
+def part3_2():
+    C = 1
+    ker = innerProd
+    sizes = np.arange(50, 1000, 50)
+    lambdas = [None, 0.2, 0.02, 0.5]
+    epochs = [None, 100, 100, 100]
+
+    for (setA,setB) in zip(setsA,setsB):
+        print "========================"
+        print setA, setB
+        (trainX, trainY, testX, testY, valX, valY) = load(setA, setB)
+        for (lbd, epoch) in zip(lambdas,epochs):
+            cls = None
+            if lbd:
+                cls = getPegasosFn(train_linearSVM(trainX, trainY, lbd, max_epochs = epoch))
+            else:
+                cls = svm(np.matrix(trainX),np.asarray(trainY.T), C = 1, ker = innerProd)
+            print lbd, errorRate(cls,valX, valY)
 
 #part1()
 part3_2()
