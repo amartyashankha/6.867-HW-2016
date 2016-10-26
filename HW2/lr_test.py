@@ -17,7 +17,7 @@ Y = train[:,2:3]
 # Carry out training.
 L = float(sys.argv[2])
 C = 1.0/L 
-clf = LogisticRegression(C=1e5)
+print 'C=', C
 if len(sys.argv) > 3:
     clf = LogisticRegression(C=C, penalty='l1')
 else:
@@ -39,5 +39,6 @@ X = validate[:,0:2]
 Y = validate[:,2:3]
 
 # plot validation results
+#plotDecisionBoundary(X, Y, predictLR, [0.5], title = 'LR Validate')
 plotDecisionBoundary(X, Y, predictLR, [0.5], title = 'LR Validate')
 pl.show()

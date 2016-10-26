@@ -10,9 +10,10 @@ import pylab as pl
 def plotDecisionBoundary(X, Y, scoreFn, values, title = "", fname = ""):
     # Plot the decision boundary. For that, we will asign a score to
     # each point in the mesh [x_min, m_max]x[y_min, y_max].
+    granularity = 50.
     x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
     y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
-    h = max((x_max-x_min)/50., (y_max-y_min)/50.)
+    h = max((x_max-x_min)/granularity, (y_max-y_min)/granularity)
     xx, yy = meshgrid(arange(x_min, x_max, h),
                       arange(y_min, y_max, h))
     zz = array([scoreFn(x) for x in c_[xx.ravel(), yy.ravel()]])
