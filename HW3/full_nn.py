@@ -48,7 +48,7 @@ class NN:
             print self.W[i]
             print self.b[i]
 
-    def __init__(self, L, dim_x, dim_y, m, f, output_f, l, eta = 1e-2):
+    def __init__(self, L, dim_x, dim_y, m, f, output_f, l, eta = 1e-3):
         self.W = [None, np.random.normal(0, 1/sqrt(m), (dim_x, m))]
         self.b = [None, np.random.normal(0, 1/sqrt(m), (m,1))]
 
