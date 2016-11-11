@@ -16,8 +16,7 @@ INCLUDE_TEST_SET = False
 class ArtistConvNet:
 	def __init__(self, invariance=False,
                     fil1=5,str1=2,depth1=16,
-                    fil2=5,str2=2,depth2=16
-                    ):
+                    fil2=5,str2=2,depth2=16):
 		'''Initialize the class by loading the required datasets 
 		and building the graph'''
                 augment=False
@@ -51,12 +50,12 @@ class ArtistConvNet:
 		layer2_stride = self.str2
 		layer3_num_hidden = 64 
 		layer4_num_hidden = layer3_num_hidden 
-		num_training_steps = 1003
+		num_training_steps = 1503
 
 		# Add max pooling
 		pooling = False
-		layer1_pool_filter_size = 3
-		layer1_pool_stride = 1
+		layer1_pool_filter_size = 2
+		layer1_pool_stride = 2
 		layer2_pool_filter_size = 2
 		layer2_pool_stride = 2
 
@@ -170,11 +169,11 @@ class ArtistConvNet:
 							train_preds = session.run(train_prediction,
                                                                                   feed_dict={tf_train_dataset: self.train_X, dropout_keep_prob : 2.0})
 							val_preds = session.run(valid_prediction, feed_dict={dropout_keep_prob : 1.0})
-							print ''
-							print('Batch loss at step %d: %f' % (step, l))
-							print('Batch training accuracy: %.1f%%' % accuracy(predictions, batch_labels))
-							print('Validation accuracy: %.1f%%' % accuracy(val_preds, self.val_Y))
-							print('Full train accuracy: %.1f%%' % accuracy(train_preds, self.train_Y))
+							# print ''
+							# print('Batch loss at step %d: %f' % (step, l))
+							# print('Batch training accuracy: %.1f%%' % accuracy(predictions, batch_labels))
+							# print('Validation accuracy: %.1f%%' % accuracy(val_preds, self.val_Y))
+							# print('Full train accuracy: %.1f%%' % accuracy(train_preds, self.train_Y))
 						if (step % 20 == 0):
                                                         log[step] = {"val_acc":accuracy(val_preds, self.val_Y),
                                                                     "train_acc": accuracy(train_preds, self.train_Y)}
