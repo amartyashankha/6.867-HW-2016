@@ -7,19 +7,28 @@ import time
 
 DATA_PATH = 'art_data/'
 DATA_FILE = DATA_PATH + 'art_data.pickle'
+ADATA_FILE = DATA_PATH + 'augmented_art_data.pickle'
 IMAGE_SIZE = 50
 NUM_CHANNELS = 3
 NUM_LABELS = 11
 INCLUDE_TEST_SET = False
 
 class ArtistConvNet:
-	def __init__(self, invariance=False):
+	def __init__(self, invariance=False,
+                    dropout=1.0,
+                    weight_penalty=0.0,
+                    augment=False):
 		'''Initialize the class by loading the required datasets 
 		and building the graph'''
-		self.load_pickled_dataset(DATA_FILE)
+                if augment:
+                    self.load_pickled_dataset(ADATA_FILE)
+                else:
+                    self.load_pickled_dataset(DATA_FILE)
 		self.invariance = invariance
 		if invariance:
 			self.load_invariance_datasets()
+                self.dropout = dropout
+                self.weight_penalty = weight_penalty
 		self.graph = tf.Graph()
 		self.define_tensorflow_graph()
 
@@ -37,18 +46,18 @@ class ArtistConvNet:
 		layer2_stride = 2
 		layer3_num_hidden = 64
 		layer4_num_hidden = 64
-		num_training_steps = 1501
+		num_training_steps = 2001
 
 		# Add max pooling
 		pooling = False
-		layer1_pool_filter_size = 2
-		layer1_pool_stride = 2
+		layer1_pool_filter_size = 3
+		layer1_pool_stride = 1
 		layer2_pool_filter_size = 2
 		layer2_pool_stride = 2
 
 		# Enable dropout and weight decay normalization
-		dropout_prob = 1.0 # set to < 1.0 to apply dropout, 1.0 to remove
-		weight_penalty = 0.0 # set to > 0.0 to apply weight penalty, 0.0 to remove
+		dropout_prob = self.dropout # set to < 1.0 to apply dropout, 1.0 to remove
+		weight_penalty = self.weight_penalty # set to > 0.0 to apply weight penalty, 0.0 to remove
 
 		with self.graph.as_default():
 			# Input data
@@ -135,13 +144,13 @@ class ArtistConvNet:
 			test_prediction = tf.nn.softmax(network_model(tf_test_dataset))
 			train_prediction = tf.nn.softmax(network_model(tf_train_dataset))
 
-			def train_model(num_steps=num_training_steps, init=False):
+			def train_model(num_steps=num_training_steps):
 				'''Train the model with minibatches in a tensorflow session'''
 				with tf.Session(graph=self.graph) as session:
-                                        if init:
-                                            tf.initialize_all_variables().run()
-                                            print 'Initializing variables...'
+                                        tf.initialize_all_variables().run()
+                                        print 'Initializing variables...'
 					
+                                        log ={} 
 					for step in range(num_steps):
 						offset = (step * batch_size) % (self.train_Y.shape[0] - batch_size)
 						batch_data = self.train_X[offset:(offset + batch_size), :, :, :]
@@ -161,6 +170,9 @@ class ArtistConvNet:
 							print('Batch training accuracy: %.1f%%' % accuracy(predictions, batch_labels))
 							print('Validation accuracy: %.1f%%' % accuracy(val_preds, self.val_Y))
 							print('Full train accuracy: %.1f%%' % accuracy(train_preds, self.train_Y))
+						if (step % 40 == 0):
+                                                        log[step] = {"val_acc":accuracy(val_preds, self.val_Y),
+                                                                    "train_acc": accuracy(train_preds, self.train_Y)}
 
 					# This code is for the final question
 					if self.invariance:
@@ -179,6 +191,7 @@ class ArtistConvNet:
 							# save final preds to make confusion matrix
 							if i == 0:
 								self.final_val_preds = preds 
+                                        return log
 			
 			# save train model function so it can be called later
 			self.train_model = train_model
@@ -227,8 +240,6 @@ if __name__ == '__main__':
 	
 	t1 = time.time()
 	conv_net = ArtistConvNet(invariance=invariance)
-	conv_net.train_model(500, True)
-	conv_net.train_model(500)
-	conv_net.train_model(500)
+	conv_net.train_model()
 	t2 = time.time()
 	print "Finished training. Total time taken:", t2-t1

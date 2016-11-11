@@ -13,7 +13,7 @@ NUM_LABELS = 11
 INCLUDE_TEST_SET = False
 
 class ArtistConvNet:
-	def __init__(self, invariance=False):
+	def __init__(self, invariance=False, win1=2, str1=2, win2=2, str2=2):
 		'''Initialize the class by loading the required datasets 
 		and building the graph'''
 		self.load_pickled_dataset(DATA_FILE)
@@ -21,6 +21,10 @@ class ArtistConvNet:
 		if invariance:
 			self.load_invariance_datasets()
 		self.graph = tf.Graph()
+                self.win1 = win1
+                self.win2 = win2
+                self.str1 = str1
+                self.str2 = str2
 		self.define_tensorflow_graph()
 
 	def define_tensorflow_graph(self):
@@ -40,11 +44,11 @@ class ArtistConvNet:
 		num_training_steps = 1501
 
 		# Add max pooling
-		pooling = False
-		layer1_pool_filter_size = 2
-		layer1_pool_stride = 2
-		layer2_pool_filter_size = 2
-		layer2_pool_stride = 2
+		pooling =True 
+		layer1_pool_filter_size = self.win1
+		layer1_pool_stride = self.str1
+		layer2_pool_filter_size = self.win2
+		layer2_pool_stride = self.str1
 
 		# Enable dropout and weight decay normalization
 		dropout_prob = 1.0 # set to < 1.0 to apply dropout, 1.0 to remove
@@ -135,12 +139,11 @@ class ArtistConvNet:
 			test_prediction = tf.nn.softmax(network_model(tf_test_dataset))
 			train_prediction = tf.nn.softmax(network_model(tf_train_dataset))
 
-			def train_model(num_steps=num_training_steps, init=False):
+			def train_model(num_steps=num_training_steps):
 				'''Train the model with minibatches in a tensorflow session'''
 				with tf.Session(graph=self.graph) as session:
-                                        if init:
-                                            tf.initialize_all_variables().run()
-                                            print 'Initializing variables...'
+                                        tf.initialize_all_variables().run()
+                                        print 'Initializing variables...'
 					
 					for step in range(num_steps):
 						offset = (step * batch_size) % (self.train_Y.shape[0] - batch_size)
@@ -179,6 +182,8 @@ class ArtistConvNet:
 							# save final preds to make confusion matrix
 							if i == 0:
 								self.final_val_preds = preds 
+                                        return {"val_acc":accuracy(val_preds, self.val_Y),
+                                                "train_acc": accuracy(train_preds, self.train_Y)}
 			
 			# save train model function so it can be called later
 			self.train_model = train_model
@@ -227,8 +232,8 @@ if __name__ == '__main__':
 	
 	t1 = time.time()
 	conv_net = ArtistConvNet(invariance=invariance)
-	conv_net.train_model(500, True)
-	conv_net.train_model(500)
-	conv_net.train_model(500)
+	conv_net.train_model()
+
+
 	t2 = time.time()
 	print "Finished training. Total time taken:", t2-t1
