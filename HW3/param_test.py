@@ -21,8 +21,8 @@ augment = False
 
 test = 'dropout'
 
-fil1=5
-str1=2
+fil1=7
+str1=3
 depth1=16
 
 fil2=5
