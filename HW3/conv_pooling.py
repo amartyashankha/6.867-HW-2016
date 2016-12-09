@@ -7,6 +7,7 @@ import time
 
 DATA_PATH = 'art_data/'
 DATA_FILE = DATA_PATH + 'art_data.pickle'
+ADATA_FILE = DATA_PATH + 'augmented_art_data.pickle'
 IMAGE_SIZE = 50
 NUM_CHANNELS = 3
 NUM_LABELS = 11
@@ -16,7 +17,7 @@ class ArtistConvNet:
 	def __init__(self, invariance=False, win1=2, str1=2, win2=2, str2=2):
 		'''Initialize the class by loading the required datasets 
 		and building the graph'''
-		self.load_pickled_dataset(DATA_FILE)
+		self.load_pickled_dataset(ADATA_FILE)
 		self.invariance = invariance
 		if invariance:
 			self.load_invariance_datasets()
@@ -33,15 +34,15 @@ class ArtistConvNet:
 		# Hyperparameters
 		batch_size = 10
 		learning_rate = 0.01
-		layer1_filter_size = 5
+		layer1_filter_size = 7
 		layer1_depth = 16
-		layer1_stride = 2
+		layer1_stride = 3
 		layer2_filter_size = 5
-		layer2_depth = 16
-		layer2_stride = 2
+		layer2_depth = 32
+		layer2_stride = 3
 		layer3_num_hidden = 64
-		layer4_num_hidden = 64
-		num_training_steps = 1501
+		layer4_num_hidden = layer3_num_hidden
+		num_training_steps = 4501
 
 		# Add max pooling
 		pooling =True 
@@ -51,7 +52,7 @@ class ArtistConvNet:
 		layer2_pool_stride = self.str1
 
 		# Enable dropout and weight decay normalization
-		dropout_prob = 1.0 # set to < 1.0 to apply dropout, 1.0 to remove
+		dropout_prob = 0.8 # set to < 1.0 to apply dropout, 1.0 to remove
 		weight_penalty = 0.0 # set to > 0.0 to apply weight penalty, 0.0 to remove
 
 		with self.graph.as_default():
@@ -145,6 +146,7 @@ class ArtistConvNet:
                                         tf.initialize_all_variables().run()
                                         print 'Initializing variables...'
 					
+                                        log = {}
 					for step in range(num_steps):
 						offset = (step * batch_size) % (self.train_Y.shape[0] - batch_size)
 						batch_data = self.train_X[offset:(offset + batch_size), :, :, :]
@@ -164,6 +166,9 @@ class ArtistConvNet:
 							print('Batch training accuracy: %.1f%%' % accuracy(predictions, batch_labels))
 							print('Validation accuracy: %.1f%%' % accuracy(val_preds, self.val_Y))
 							print('Full train accuracy: %.1f%%' % accuracy(train_preds, self.train_Y))
+						if (step % 10 == 0):
+                                                        log[step] = {"val_acc":accuracy(val_preds, self.val_Y),
+                                                                    "train_acc": accuracy(train_preds, self.train_Y)}
 
 					# This code is for the final question
 					if self.invariance:
@@ -182,8 +187,7 @@ class ArtistConvNet:
 							# save final preds to make confusion matrix
 							if i == 0:
 								self.final_val_preds = preds 
-                                        return {"val_acc":accuracy(val_preds, self.val_Y),
-                                                "train_acc": accuracy(train_preds, self.train_Y)}
+                                        return log
 			
 			# save train model function so it can be called later
 			self.train_model = train_model
@@ -232,7 +236,8 @@ if __name__ == '__main__':
 	
 	t1 = time.time()
 	conv_net = ArtistConvNet(invariance=invariance)
-	conv_net.train_model()
+	log = conv_net.train_model()
+        print max([x["val_acc"] for x in log.values()])
 
 
 	t2 = time.time()

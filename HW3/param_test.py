@@ -97,8 +97,10 @@ ppl.pcolormesh(fig, ax, res,
                 yticklabels=fil_vals,
                 xticklabels=str_vals)
 
-ax.set_ylabel('Size of ' + layer + ' pooling filter')
-ax.set_xlabel('Stride of ' + layer + ' pooling filter')
+# ax.set_ylabel('Size of ' + layer + ' convolutional filter')
+# ax.set_xlabel('Stride of ' + layer + ' convolutional filter')
+ax.set_ylabel('Depth of First Convolutional Layer')
+ax.set_xlabel('Depth of Second Convolutional Layer')
 title = 'Validation' + " Accuracy Heatmap" 
 
 ax.set_title(title)

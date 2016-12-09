@@ -53,7 +53,7 @@ for i in win1range:
             data[(win1, str1, win2, str2)] = result
             pickle.dump(data, open( "pooling_data.pkl", "wb" ) )
         else:
-            result = data[(win1, str1, win2, str2)]
+            result = data[(win2, str1, win2, str2)]
         if layer == 'first':
             res[win1-2][str1-1] = result[acc+"_acc"]
         else:
