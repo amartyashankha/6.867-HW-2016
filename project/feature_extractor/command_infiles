@@ -1,0 +1,1 @@
+find /home/shankha/Desktop/6.867/6.867-HW-2016/project/data/ -name \*.h5 > /home/shankha/Desktop/6.867/6.867-HW-2016/project/feature_extractor/infiles.txt
