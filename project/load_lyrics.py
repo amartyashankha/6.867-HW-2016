@@ -54,7 +54,7 @@ def plot_years(word):
     plt.plot(yrs, num)
     plt.show()
 
-def load_regress(norm, one_hot = True):
+def load_regress(norm, one_hot = True, dense = False):
     data = open('mxm_dataset_train.txt').readlines()[:15000]
     (words, songs) = load(norm and (not one_hot))
     X = dok_matrix((len(songs), 5000), dtype = np.float32)
@@ -69,7 +69,8 @@ def load_regress(norm, one_hot = True):
                 X[i, j] = song.freq_dic[j]
         Y.append(song.year)
         ids.append(song.track_id)
-    X = X.toarray() # remove this later to keep sparse matrix
+    if dense:
+        X = X.toarray() # remove this later to keep sparse matrix
     print "Finished making regression matrix"
     return (X,Y,ids)
 
