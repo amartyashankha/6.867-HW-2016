@@ -14,7 +14,7 @@ files = get_all_files()
 
 
 feat_list = filter(lambda x: x[:6] != 'artist', get_feature_list())
-feat_list = ['year', 'song_id']
+feat_list = ['song_idx']
 
 
 folder = tempfile.mkdtemp()
@@ -23,7 +23,7 @@ lengths = np.memmap(lengths_name, dtype='uint32',
                          shape=len(files), mode='w+')
 feats_name = os.path.join(folder, 'feats')
 feats = np.memmap(feats_name, dtype='uint8',
-                         shape=(len(files),5000), mode='w+')
+                         shape=(len(files),200000), mode='w+')
 
 import timeit
 
@@ -31,21 +31,18 @@ delay_h5 = 0.0
 
 def fun(f, i, delay=[]):
     feat = get_features_simple(f, feat_list) 
-    #p = pickle.dumps(feat)
-    #lengths[i] = len(p)
-    #feats[i][:len(p)] = map(ord, p)
+    p = pickle.dumps(feat)
+    lengths[i] = len(p)
+    feats[i][:len(p)] = map(ord, p)
 
 def extract(file_rng):
     features = pickle.load(open('features'+'.pkl', 'rb'))
     for f in file_rng:
         if f not in features:
             features[f] = {}
-    en = zip(range(len(file_rng)), file_rng)
-    Parallel(n_jobs=-1, verbose=50)(delayed(fun)(f, i)
-        for i,f in en)
+    Parallel(n_jobs=-1)(delayed(fun)(f, i)
+        for i,f in ProgressBar()(enumerate(file_rng)))
             
-    print sum(delay), len(delay)
-
     final = [None for _ in files]
     final = [pickle.loads(''.join(map(chr, feats[i][:lengths[i]])))
                         for i in range(len(file_rng))]
@@ -60,5 +57,8 @@ def extract(file_rng):
     pickle.dump(features, open(f_name+'.pkl', 'wb'))
 
 
-for i in range(100):
-    extract(files[i*1000:(i+1)*1000])
+total = 100000
+batch = 2000
+iters = total/batch
+for i in range(iters):
+    extract(files[i*batch:(i+1)*batch])

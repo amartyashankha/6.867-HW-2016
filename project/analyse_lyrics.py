@@ -39,7 +39,6 @@ def test_classifiers(test_ratio = 0.05, norm = False, one_hot = True, feat_sel =
 
     regressors = [LinearRegression(),
                    Ridge(alpha = 0.5),
-                   AdaBoostRegressor(),
                    ]
     classifiers = [#AdaBoostClassifier(),
                    RidgeClassifier(tol=1e-2, solver="lsqr"),
@@ -69,7 +68,8 @@ def test_classifiers(test_ratio = 0.05, norm = False, one_hot = True, feat_sel =
             print "R2: ", metrics.r2_score(testY, pred)
             coefs = zip(classifier.coef_, words)
             coefs.sort(reverse = True)
-            print coefs[:20]
+            coefs = [coef[1] for coef in coefs]
+            print coefs[:50]
         
 
         print "MSE of prediction: ", metrics.mean_squared_error(testY, pred)
