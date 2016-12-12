@@ -1,0 +1,17 @@
+Finished loading data
+[1960 1965 1970 1975 1980 1985 1990 1995 2000 2005 2010]
+[ 0.04166667  0.18518519  0.17241379  0.125       0.12        0.22
+  0.80319149  0.34057971  0.22738386  0.18480493  0.        ]
+[ 0.04166667  0.11111111  0.13793103  0.05        0.06666667  0.11
+  0.13297872  0.16666667  0.15403423  0.13552361  0.        ]
+Finished loading data
+1960 ['alon', 'witch', 'star', 'blood', 'al', 'fli', 'em', 'came', 'next', '\xc3\xa8', 'heat', 'bitch', 'twist', 'sch\xc3\xb6n', 'went']
+1965 ['small', 'greed', 'thug', 'height', 'part', 'hero', 'fond', 'jag', 'beneath', 'twenti', 'ur', 'someday', 'less', 'talkin', 'fa']
+1970 ['kind', 'scale', 'bout', 'sweet', 'ver', 'cover', 'someth', 'drive', 'clear', 'fear', 'grab', 'freak', 'shot', 'honest', 'hit']
+1975 ['chang', 'speed', 'fell', 'dein', 'der', 'voc\xc3\xaa', 'toi', 'guilti', 'natur', 'taken', 'tellin', 'mich', 'guy', 'mistak', 'tak']
+1980 ['care', 'herself', 'harder', 'bump', 'toda', 'woah', 'fort', 'chant', 'today', 'gold', 'becam', 'hot', 'almost', 'rip', 'fat']
+1985 ['their', 'temp', 'wake', 'save', 'aber', 'surround', 'born', 'jai', 'gent', 'haunt', 'sie', 'written', 'act', 'quier', 'lust']
+1990 ['left', 'rose', 'album', 'magic', 'u', 'money', 'siempr', 'heard', 'eso', 'dumb', 'gun', 'excus', 'lookin', 'ihr', 'nuestro']
+1995 ['va', 'other', 'mad', 'children', 'feliz', 'ho', 'babe', 'case', 'punish', 'pu', 'spent', 'x4', 'hollow', 'frent', 'repeat']
+2000 ['even', 'god', 'start', 'thank', 'viel\xc3\xa4', 'mari', 'eu', 'feliz', 'sometim', 'shell', 'ho', 'voic', 'jesus', 'tight', 'sol']
+2005 ['shame', 'dear', 'tie', 'power', 'cuz', 'done', 'six', 'step', 'test', 'dove', 'somewher', 'confus', 'c', 'fair', 'hello']

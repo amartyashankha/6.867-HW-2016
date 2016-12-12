@@ -1,7 +1,5 @@
 """
-Thierry Bertin-Mahieux (2010) Columbia University
-tb2332@columbia.edu
-
+Thierry Bertin-Mahieux (2010) Columbia University tb2332@columbia.edu 
 Code to quickly see the content of an HDF5 file.
 
 This is part of the Million Song Dataset project from
@@ -15,8 +13,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
@@ -110,4 +107,11 @@ def get_features(hdf5path, feat = None):
 if __name__ == '__main__':
     """ MAIN """
     files = get_all_files()
-    print "\n".join(sorted(get_features(files[0]).keys()))
+    c = 0
+    for i in range(len(files)):
+        s = get_features(files[i], 'year')['year']
+        if s != 0:
+            c+=1
+            print c
+    print c
+    print "\n".join(sorted(get_features(files[0])))

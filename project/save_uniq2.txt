@@ -1,0 +1,17 @@
+Finished loading data
+[1960 1965 1970 1975 1980 1985 1990 1995 2000 2005 2010]
+[ 0.          0.          0.          0.          0.01333333  0.01
+  0.0106383   0.02173913  0.05134474  0.04928131  0.        ]
+[ 0.          0.          0.          0.          0.01333333  0.01
+  0.0106383   0.02173913  0.02200489  0.0349076   0.        ]
+Finished loading data
+1960 ['whole', 'cut', 'answer', 'wave', 'moi', 'share', 'bell', 'bitch', 'dri', 'radio', 'four', 'mirror', 'law', 'luck', 'cat']
+1965 ['listen', 'talkin', 'town', 'wild', 'sit', 'wing', 'whatev', 'ten', 'less', 'none', 'shore', 'kann', 'bis', 'nach', 'sale']
+1970 ['mani', 'school', 'sabe', 'guid', 'ship', 'afraid', 'flower', 'pa', 'surviv', 'shout', 'sa', 'van', 'cosa', 'price', 'passion']
+1975 ['mile', 'write', 'shoot', 'p\xc3\xa5', 'vien', 'jamai', 'candl', 'las', 'snow', 'decid', 'hier', 'kein', 'six', 'gate', 'short']
+1980 ['quiet', 'rage', 'crime', 'wont', 'dire', 'dog', 'ass', 'sunday', 'fuckin', 'bend', 'vous', 'gift', 'cowboy', 'gas', 'agre']
+1985 ['gent', 'cheat', 'wrap', 'it\xe2\x80\x99', 'salt', 'across', 'sich', 'fait', 'bow', 'load', 'begun', 'sexi', 'demand', 'macht', 'mist']
+1990 ['left', 'person', 'grave', 'spoke', 'crumbl', 'express', 'deseo', 'disappear', 'master', 'diamond', 'warn', 'reign', 'sai', 'cuerpo', 'amar']
+1995 ['va', 'wenn', 'feliz', 'wie', 'teeth', 'fals', 'ho', 'doch', 'een', 'eras', 'forc', 'ohh', 'ska', 'jen', 'senseless']
+2000 ['hollow', 'mari', 'feliz', 'obsess', 'twice', 'shell', 'apr\xc3\xa8', 'sold', 'bear', 'bind', 'deed', 'rape', 'bread', 'bark', 'glad']
+2005 ['glass', 'dress', 'battl', 'estar', 'os', 'vein', 'm\xc3\xad', 'hop', 'strength', 'seven', 'cost', 'religion', 'lyric', 'bottom', 'desd']

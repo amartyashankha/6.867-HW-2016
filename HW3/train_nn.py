@@ -1,5 +1,6 @@
 from full_nn import *
 import numpy as np
+from copy import deepcopy
 from random import randint
 from plotBoundary import *
 from PIL import Image
@@ -23,6 +24,11 @@ def one_hot(i, k):
 def predictor(network):
     def f(x):
         return np.argmax(network.query(x))
+    return f
+
+def cont_predictor(network):
+    def f(x):
+        return network.query(x)[0,0]
     return f
 
 def easy_test():
@@ -57,17 +63,21 @@ def misclassifications(network, X, Y, save = False):
         if int(Y[i]) != val:
             ret.append((val, int(Y[i])))
             if save:
-                img = Image.fromarray(X[i].reshape((28,28))).convert('RGB')
-                img.save('thought_'+str(val)+'_actually_'+str(int(Y[i]))+'_'+str(c)+'.png')
+                unnorm = (X[i] + np.ones(X[i].shape))*(255.0/2)
+                unnorm = np.uint8(unnorm)
+                img = Image.fromarray(unnorm.reshape((28,28))).convert('RGB')
+                img.save('digs/thought_'+str(val)+'_actually_'+str(int(Y[i]))+'_'+str(c)+'.png')
             c += 1
 
     return ret
 
-def train_multiclass(data, hidden_layers, hidden_nodes, classes, dim_x, error_iters = 5, conv_thresh = 0.03, max_iters = 100, eta = 1e-3):
+def train_multiclass(data, hidden_layers, hidden_nodes, classes, dim_x, error_iters = 10, conv_thresh = 0.01, max_iters = 100, eta = 1e-3):
     (trainX, trainY, valX, valY, testX, testY) = data
     n_train, n_val, n_test = (trainX.shape[0], valX.shape[0], testX.shape[0])
 
     network = NN(hidden_layers+2, dim_x, classes, hidden_nodes, relu, softmax, cross_entropy)
+    mn  = 1
+    best_net = None
     errors = []
 
     for c in range(max_iters):
@@ -80,13 +90,16 @@ def train_multiclass(data, hidden_layers, hidden_nodes, classes, dim_x, error_it
 
         errors.append(ers)
         last_few = errors[-error_iters:]
-        print ers
+        #print ers
+        if ers < mn:
+            mn = ers
+            best_net = deepcopy(network)
         if len(last_few) == error_iters and ((np.max(last_few) - np.min(last_few)) <= conv_thresh):
             break
 
-    print "Final validation error: ", error_rate(network, valX, valY)
-    print "Final training error: ", error_rate(network, trainX, trainY)
-    print "Final testing error: ", error_rate(network, testX, testY)
-    print misclassifications(network, testX, testY, save = True)
+    #print "Final validation error: ", error_rate(best_net, valX, valY)
+    #print "Final training error: ", error_rate(best_net, trainX, trainY)
+    #print "Final testing error: ", error_rate(best_net, testX, testY)
+    #misclassifications(network, testX, testY, save = True)
 
-    return network
+    return error_rate(best_net, testX, testY)
