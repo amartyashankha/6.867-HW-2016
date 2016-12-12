@@ -104,21 +104,22 @@ def get_features(hdf5path, feat = None):
     
     return features
     
-def get_features_simple(hdf5path, getter, limit=500):
+def get_features_simple(hdf5path, getters, limit=500):
+
 
     songidx = 0
     features = []
 
     h5 = hdf5_getters.open_h5_file_read(hdf5path)
     
-    getter.sort()
-    getter = map(lambda x: 'get_'+x, getter)
-    print getter
+    getters.sort()
+    getters = map(lambda x: 'get_'+x, getters)
 
     # print them
-    res = hdf5_getters.__getattribute__('year')(h5,songidx)
+    res = hdf5_getters.__getattribute__('get_year')(h5,songidx)
     if res < 1800:
-        return None
+        h5.close()
+        return []
     for getter in getters:
         try:
             res = hdf5_getters.__getattribute__(getter)(h5,songidx)

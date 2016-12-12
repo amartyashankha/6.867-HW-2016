@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.sparse import dok_matrix
+
 #import matplotlib.pyplot as plt
 import sys
 import os
@@ -40,7 +41,7 @@ def save_year_data():
 year_dic = None
 def load_year_data():
     global year_dic
-    lines = open('year_save_back.txt').readlines()
+    lines = open('year_save.txt').readlines()
     year_dic = {}
     for line in lines:
         (i, y) = line.split(',')
@@ -55,7 +56,7 @@ class LyricVector():
         self.freq_dic = {}
         for item in vals[2:]:
             proc = item.split(':')
-            self.freq_dic[int(proc[0])] = int(proc[1])
+            self.freq_dic[int(proc[0])-1] = int(proc[1])
         if norm:
             N = sum(self.freq_dic.values())
             for i in self.freq_dic:
@@ -67,7 +68,7 @@ class LyricVector():
 
 def load(norm):
     data = open('mxm_dataset_train.txt').readlines()
-    words = [line.split(',') for line in data if line[0] == '%'][0]
+    words = [line[1:].split(',') for line in data if line[0] == '%'][0]
     songs = [LyricVector(line, norm) for line in data if line[0] == 'T']
     songs = [song for song in songs if song.year != None]
     print "Finished loading data"
