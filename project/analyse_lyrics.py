@@ -13,7 +13,10 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC, SVC
 from sklearn import metrics
 
-def test_classifiers(test_ratio = 0.05, norm = False, one_hot = True, feat_sel = 100):
+def error(a, b):
+    dif = a-b
+    return 
+def test_classifiers(test_ratio = 0.05, norm = False, one_hot = True, feat_sel = 500):
     (X, Y, i, words) = load_class(norm = norm, one_hot = one_hot, divs = 5)
             #min_year = 1990, max_year = 2010)
     n_samp = len(Y)
@@ -50,6 +53,8 @@ def test_classifiers(test_ratio = 0.05, norm = False, one_hot = True, feat_sel =
 
         pred = classifier.predict(testX)
         print metrics.classification_report(testY, pred)
+        print metrics.mean_squared_error(testY, pred)
+        print metrics.mean_squared_error(testY, [7]*len(testY))
         print classifier.score(testX, testY)
 
 if __name__ == "__main__":

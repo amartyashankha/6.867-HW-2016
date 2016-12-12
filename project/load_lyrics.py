@@ -1,16 +1,54 @@
 import numpy as np
 from scipy.sparse import dok_matrix
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
+import sys
+import os
+from joblib import Parallel, delayed
+sys.path.append(sys.path[0]+'/feature_extractor')
+from get_features import get_features
 
-years = {}
+def load_txt_data():
+	years = {}
 
-ydata = open('data/tracks_per_year.txt').readlines()
-for line in ydata:
-    proc = line.split('<SEP>')
-    years[proc[1]] = int(proc[0])
+	ydata = open('data/tracks_per_year.txt').readlines()
+	for line in ydata:
+		proc = line.split('<SEP>')
+		years[proc[1]] = int(proc[0])
+
+def get_year(song):
+    fpath  = '/mnt/snap/data/'
+    fpath += song[2]+'/'
+    fpath += song[3]+'/'
+    fpath += song[4]+'/'
+    fpath += song +'.h5'
+
+    if os.path.isfile(fpath):
+        year = get_features(fpath, 'year')['year']
+        if year != 0:
+            return song+ "," + str(year)+'\n'
+
+def save_year_data():
+    data = open('mxm_dataset_train.txt').readlines()
+    songs = [line.split(',')[0] for line in data if line[0] == 'T']
+    lines = Parallel(n_jobs = -1, verbose = 50)(delayed(get_year)(song) for song in songs)
+    f  = open('year_save.txt', 'w')
+    for line in lines:
+        if line:
+            f.write(line)
+    f.close()
+
+year_dic = None
+def load_year_data():
+    global year_dic
+    lines = open('year_save_back.txt').readlines()
+    year_dic = {}
+    for line in lines:
+        (i, y) = line.split(',')
+        year_dic[i] = int(y)
 
 class LyricVector():
-    def __init__(self, line, norm = True):
+    def __init__(self, line, norm = False):
+        global year_dic
         vals = line.split(',')
         self.track_id = vals[0]
         self.mxm_id   = vals[1]
@@ -22,10 +60,13 @@ class LyricVector():
             N = sum(self.freq_dic.values())
             for i in self.freq_dic:
                 self.freq_dic[i] /= float(N)
-        self.year = years.get(self.track_id, None)
+
+        if year_dic == None:
+            load_year_data()
+        self.year = year_dic.get(self.track_id, None)
 
 def load(norm):
-    data = open('mxm_dataset_train.txt').readlines()[:15000]
+    data = open('mxm_dataset_train.txt').readlines()
     words = [line.split(',') for line in data if line[0] == '%'][0]
     songs = [LyricVector(line, norm) for line in data if line[0] == 'T']
     songs = [song for song in songs if song.year != None]
@@ -52,9 +93,9 @@ def plot_years(word):
     plt.show()
 
 def load_class(norm, min_year = 1970, max_year = 2016, divs = 10, one_hot = True, dense = False):
-    data = open('mxm_dataset_train.txt').readlines()[:15000]
     (words, songs) = load(norm and (not one_hot))
-    X = dok_matrix((len(songs), 5000), dtype = np.float32)
+    print len(songs)
+    X = dok_matrix((len(songs), 5001), dtype = np.float32)
     Y = []
     ids = []
     for i in range(len(songs)): 
@@ -77,3 +118,6 @@ def load_class(norm, min_year = 1970, max_year = 2016, divs = 10, one_hot = True
     return (X,Y,ids, words)
 
 #plot_years('quiet')
+
+if __name__ == '__main__':
+    save_year_data()

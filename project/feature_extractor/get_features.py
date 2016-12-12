@@ -104,23 +104,24 @@ def get_features(hdf5path, feat = None):
     
     return features
     
-def get_features_simple(hdf5path, feat, limit=500):
+def get_features_simple(hdf5path, getter, limit=500):
 
     songidx = 0
-    onegetter = '' if feat == None else feat
     features = []
 
-    # get all getters
-    getters = feat
-
     h5 = hdf5_getters.open_h5_file_read(hdf5path)
+    
+    getter.sort()
+    getter = map(lambda x: 'get_'+x, getter)
+    print getter
 
     # print them
+    res = hdf5_getters.__getattribute__('year')(h5,songidx)
+    if res < 1800:
+        return None
     for getter in getters:
         try:
-            start = timeit.timeit()
             res = hdf5_getters.__getattribute__(getter)(h5,songidx)
-            end = timeit.timeit()
         except AttributeError, e:
             res = None
         if isinstance(res, np.ndarray):
