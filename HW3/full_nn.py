@@ -48,16 +48,16 @@ class NN:
             print self.W[i]
             print self.b[i]
 
-    def __init__(self, L, dim_x, dim_y, m, f, output_f, l, eta = 1e-3):
-        self.W = [None, np.random.normal(0, 1/sqrt(m), (dim_x, m))]
-        self.b = [None, np.random.normal(0, 1/sqrt(m), (m,1))]
+    def __init__(self, L, dim_x, dim_y, m, f, output_f, l, eta = 1e-3, WEIGHT_BIAS = 0.0):
+        self.W = [None, np.ones((dim_x, m)) * WEIGHT_BIAS + np.random.normal(0, 1/sqrt(m), (dim_x, m))]
+        self.b = [None, np.zeros((m,1))]
 
         for i in range(2, L-1):
-            self.W.append(np.random.normal(0, 1/sqrt(m), (m,m)))
-            self.b.append(np.random.normal(0, 1/sqrt(m), (m,1)))
+            self.W.append(np.ones((m, m)) * WEIGHT_BIAS + np.random.normal(0, 1/sqrt(m), (m,m)))
+            self.b.append(np.zeros((m,1)))
 
-        self.W.append(np.random.normal(0, 1/sqrt(m), (m,dim_y)))
-        self.b.append(np.random.normal(0, 1/sqrt(m), (dim_y,1)))
+        self.W.append(np.ones((m, dim_y)) * WEIGHT_BIAS + np.random.normal(0, 1/sqrt(m), (m,dim_y)))
+        self.b.append(np.zeros((dim_y,1)))
 
         self.f = f
         self.output_f = output_f

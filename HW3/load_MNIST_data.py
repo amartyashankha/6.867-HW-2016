@@ -1,5 +1,4 @@
 import numpy as np
-from PIL import Image
 
 def normalize(x):
     return 2*x.astype(float)*(1/255.0) - np.ones(x.shape)
