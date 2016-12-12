@@ -52,7 +52,7 @@ def die_with_usage():
     print '                  Specifically desgin to display summary files'
     sys.exit(0)
 
-from read_all import get_all_files
+from generate_paths import get_all_files
 
 def get_features(hdf5path, feat = None):
 
@@ -107,7 +107,31 @@ def get_features(hdf5path, feat = None):
     
     return features
     
-if __name__ == '__main__':
-    """ MAIN """
+def get_features_simple(hdf5path, feat):
+
+    songidx = 0
+    onegetter = '' if feat == None else feat
+    features = {}
+
+    # get all getters
+    getters = feat
+
+    h5 = hdf5_getters.open_h5_file_read(hdf5path)
+
+    # print them
+    for getter in getters:
+        try:
+            start = timeit.timeit()
+            res = hdf5_getters.__getattribute__(getter)(h5,songidx)
+            end = timeit.timeit()
+        except AttributeError, e:
+            res = None
+        features[getter[4:]] = res
+
+    h5.close()
+    
+    return features
+
+def get_feature_list():
     files = get_all_files()
-    print "\n".join(sorted(get_features(files[0]).keys()))
+    return get_features(files[0]).keys()

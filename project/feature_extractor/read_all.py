@@ -1,27 +1,46 @@
+from generate_paths import get_all_files
+from get_features import get_features_simple, get_feature_list
+import cPickle as pickle
+import numpy as np
+import tempfile
+import shutil
 import os
-import glob
-import hdf5_getters
-import pickle
 
-def pickle_all_files(basedir,ext='.h5') :
-    fles = []
-    for root, dirs, files in os.walk(basedir):
-        files = glob.glob(os.path.join(root,'*'+ext))
-        for f in files:
-            fles.append(f)
-    pickle.dump(fles, open('files.pkl', 'wb'))
+from progressbar import ProgressBar
+from joblib import Parallel, delayed
 
-def get_all_files():
-    files = pickle.load(open('files.pkl', 'rb'))
-    return files
+files = get_all_files()[:100]
+
+feat_list = filter(lambda x: x[:6] != 'artist', get_feature_list())
+feat_list = map(lambda x: 'get_'+x, feat_list)
+
+folder = tempfile.mkdtemp()
+lengths_name = os.path.join(folder, 'lengths')
+lengths = np.memmap(lengths_name, dtype='uint32',
+                         shape=len(files), mode='w+')
+features_name = os.path.join(folder, 'features')
+features = np.memmap(features_name, dtype='uint8',
+                         shape=(len(files)*1000000), mode='w+')
+
+curr_idx = 0
+
+print features.shape
+def fun(f, i):
+    if i%1000 == 0:
+        print i
+    feat = get_features_simple(f, feat_list)
+    p = pickle.dumps(feat)
+    lengths[i] = len(p)
+    for j,char in enumerate(p):
+        features[j+curr_idx] = ord(char)
+    curr_idx += lengths[i]
 
 
-def get_all_titles(basedir,ext='.h5') :
-    titles = []
-    for root, dirs, files in os.walk(basedir):
-        files = glob.glob(os.path.join(root,'*'+ext))
-        for f in files:
-            h5 = hdf5_getters.open_h5_file_read(f)
-            titles.append( hdf5_getters.get_title(h5) )
-            h5.close()
-    return titles
+Parallel(n_jobs=8)(delayed(fun)(f, i)
+    for i,f in ProgressBar()(enumerate(files)))
+
+pickle.dump(lengths, open('features'+'.pkl', 'wb'))
+
+final = [None for _ in files]
+final = np.array([pickle.loads(features[i][:lengths[i]]) for i in len(features)])
+
