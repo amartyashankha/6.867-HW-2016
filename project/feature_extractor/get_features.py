@@ -104,11 +104,11 @@ def get_features(hdf5path, feat = None):
     
     return features
     
-def get_features_simple(hdf5path, feat):
+def get_features_simple(hdf5path, feat, limit=500):
 
     songidx = 0
     onegetter = '' if feat == None else feat
-    features = {}
+    features = []
 
     # get all getters
     getters = feat
@@ -123,7 +123,12 @@ def get_features_simple(hdf5path, feat):
             end = timeit.timeit()
         except AttributeError, e:
             res = None
-        features[getter[4:]] = res
+        if isinstance(res, np.ndarray):
+            if len(res) > limit:
+                beg = (len(res)-limit)/2
+                res = res[beg:beg+limit]
+            res = res.tolist()
+        features.append(res)
 
     h5.close()
     
@@ -131,11 +136,4 @@ def get_features_simple(hdf5path, feat):
 
 def get_feature_list():
     files = get_all_files()
-    c = 0
-    for i in range(len(files)):
-        s = get_features(files[i], 'year')['year']
-        if s != 0:
-            c+=1
-            print c
-    print c
-    print "\n".join(sorted(get_features(files[0])))
+    return get_features(files[0]).keys()
