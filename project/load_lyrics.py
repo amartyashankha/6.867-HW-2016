@@ -1,14 +1,19 @@
 import numpy as np
 from scipy.sparse import dok_matrix
 
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import sys
 import os
-from joblib import Parallel, delayed
+#from joblib impoort Parallel, delayed
 sys.path.append(sys.path[0]+'/feature_extractor')
 from get_features import get_features
 
-def load_txt_data():
+plt.style.use('fivethirtyeight')
+plt.rcParams['axes.facecolor'] = 'white'
+plt.rcParams['axes.edgecolor'] = 'black'
+plt.rcParams['figure.autolayout'] = 'true'
+
+def looad_txt_data():
 	years = {}
 
 	ydata = open('data/tracks_per_year.txt').readlines()
@@ -74,26 +79,32 @@ def load(norm):
     print "Finished loading data"
     return (words, songs)
 
-def plot_years(word):
+def plot_years(word_str, div = 5):
     (words, songs) = load(norm = False)
-    word = words.index(word)
-    yrs  = np.arange(1960, 2015, 5)
+    word = words.index(word_str)
+    yrs  = np.arange(1960, 2015, div)
     cnt  = np.zeros(len(yrs))
     num  = np.zeros(len(yrs))
     tot  = np.zeros(len(yrs))
     for song in songs:
-        ind = (max(song.year, 1960) - 1960)/5
+        ind = (max(song.year, 1960) - 1960)/div
         cnt[ind] += song.freq_dic.get(word, 0)
         num[ind] += (word in song.freq_dic)
         tot[ind] += 1.0
 
-    cnt/= tot
+    print tot
+    print num
     num/= tot
-    plt.plot(yrs, cnt)
+    num*=100
+    #plt.plot(yrs, cnt)
+    plt.xticks(yrs, yrs, rotation = 'vertical')
+    plt.xlabel('Year')
+    plt.ylabel('% songs that mentioned ' + word_str)
+    plt.title(word_str +' in song lyrics')
     plt.plot(yrs, num)
     plt.show()
 
-def load_class(norm, min_year = 1970, max_year = 2016, divs = 10, one_hot = True, dense = False):
+def load_class(norm, min_year = 1960, max_year = 2016, divs = 10, one_hot = True, dense = False):
     (words, songs) = load(norm and (not one_hot))
     print len(songs)
     X = dok_matrix((len(songs), 5001), dtype = np.float32)
@@ -118,7 +129,7 @@ def load_class(norm, min_year = 1970, max_year = 2016, divs = 10, one_hot = True
 
     return (X,Y,ids, words)
 
-#plot_years('quiet')
+#plot_years('yonder')
 
-if __name__ == '__main__':
-    save_year_data()
+#if __name__ == '__main__':
+    #save_year_data()
