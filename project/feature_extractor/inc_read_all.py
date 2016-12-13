@@ -14,9 +14,9 @@ files = get_all_files()
 
 
 feat_list = filter(lambda x: x[:6] != 'artist', get_feature_list())
-feat_list = ['key','mode','loudness','danceability','duration','energy','mode', 'year', 'song_id']
+feat_list = ['key','mode','loudness','danceability','duration','energy','mode', 'year', 'song_id', 'end_of_fade_in', 'start_of_fade_out']
 #feat_list.extend(['bas_start', 'beats_start', 'sections_start', 'segments_loudness_max', 'segments_timbre', 'segments_pitches', 'tatums_start'])
-feat_list = ['sections_start', 'year', 'song_id']
+feat_list = ['segments_loudness_max', 'year', 'song_id']
 feat_list.sort()
 
 f_name = 'features_inc'
