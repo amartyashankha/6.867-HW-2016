@@ -6,6 +6,8 @@ import pickle
 def pickle_all_files(basedir,ext='.h5') :
     fles = []
     for root, dirs, files in os.walk(basedir):
+        import pdb
+        pdb.set_trace()
         files = glob.glob(os.path.join(root,'*'+ext))
         for f in files:
             fles.append(f)
