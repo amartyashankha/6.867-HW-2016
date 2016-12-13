@@ -1,7 +1,6 @@
 from load_lyrics import *
 import numpy as np
 
-
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import AdaBoostRegressor
@@ -38,14 +37,14 @@ def test_classifiers(test_ratio = 0.05, norm = False, one_hot = True, feat_sel =
                    RidgeClassifier(tol=1e-2, solver="lsqr"),
                    #Perceptron(n_iter=50),
                    #PassiveAggressiveClassifier(n_iter=50),
-                   #KNeighborsClassifier(n_neighbors=10),
-                   #RandomForestClassifier(),
+                   KNeighborsClassifier(n_neighbors=10),
+                   RandomForestClassifier(),
                    #RandomForestClassifier(n_estimators=200, criterion = 'entropy'),
                    #LinearSVC(loss='l2', penalty='l2', dual=False, tol=1e-3),
                    #MultinomialNB(alpha=0.1),
                    #BernoulliNB(alpha=0.1),
                    #SGDClassifier(alpha=.0001, n_iter=200, penalty='l2'),
-                   #SVC()
+                   SVC()
                    ]
 
 
