@@ -1,17 +1,17 @@
 import numpy as np
 from scipy.sparse import dok_matrix
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import sys
 import os
 #from joblib impoort Parallel, delayed
 sys.path.append(sys.path[0]+'/feature_extractor')
 from get_features import get_features
 
-plt.style.use('fivethirtyeight')
-plt.rcParams['axes.facecolor'] = 'white'
-plt.rcParams['axes.edgecolor'] = 'black'
-plt.rcParams['figure.autolayout'] = 'true'
+#plt.style.use('fivethirtyeight')
+#plt.rcParams['axes.facecolor'] = 'white'
+#plt.rcParams['axes.edgecolor'] = 'black'
+#plt.rcParams['figure.autolayout'] = 'true'
 
 def looad_txt_data():
 	years = {}
@@ -76,7 +76,7 @@ def load(norm):
     words = [line[1:].split(',') for line in data if line[0] == '%'][0]
     songs = [LyricVector(line, norm) for line in data if line[0] == 'T']
     songs = [song for song in songs if song.year != None]
-    print "Finished loading data"
+    print("Finished loading data")
     return (words, songs)
 
 def plot_years(word_str, div = 5):
@@ -92,8 +92,8 @@ def plot_years(word_str, div = 5):
         num[ind] += (word in song.freq_dic)
         tot[ind] += 1.0
 
-    print tot
-    print num
+    #print tot
+    #print num
     num/= tot
     num*=100
     #plt.plot(yrs, cnt)
@@ -106,7 +106,7 @@ def plot_years(word_str, div = 5):
 
 def load_class(norm, min_year = 1960, max_year = 2016, divs = 10, one_hot = True, dense = False):
     (words, songs) = load(norm and (not one_hot))
-    print len(songs)
+    #print len(songs)
     X = dok_matrix((len(songs), 5001), dtype = np.float32)
     Y = []
     ids = []

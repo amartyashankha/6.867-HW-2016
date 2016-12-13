@@ -31,11 +31,12 @@ def test_classifiers(test_ratio = 0.05, norm = False, one_hot = True, feat_sel =
     testY = Y[n_samp - n_test:]
 
 
-    regressors = [LinearRegression(),
-                   Ridge(alpha = 0.5),
+    regressors = [
+                   #LinearRegression(),
+                   RidgeCV(alphas = (0, 0.1, 0.5, 1, 5), store_cv_values = True),
                    ]
     classifiers = [#AdaBoostClassifier(),
-                   RidgeClassifier(tol=1e-2, solver="lsqr"),
+                   #RidgeClassifier(tol=1e-2, solver="lsqr"),
                    #Perceptron(n_iter=50),
                    #PassiveAggressiveClassifier(n_iter=50),
                    #KNeighborsClassifier(n_neighbors=10),

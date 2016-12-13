@@ -19,7 +19,10 @@ from sklearn import metrics
 def error(a, b):
     dif = a-b
     return 
-def test_classifiers(test_ratio = 0.05, norm = False, one_hot = True, feat_sel = 5000):
+def test_classifiers(test_ratio = 0.05,
+                     norm = False,
+                     one_hot = True,
+                     feat_sel = 5000):
     (X, Y, i, words) = load_class(norm = norm, one_hot = one_hot, divs = 1)
             #min_year = 1990, max_year = 2010)
     n_samp = len(Y)

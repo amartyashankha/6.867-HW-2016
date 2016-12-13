@@ -29,24 +29,24 @@ import timeit
 
 
 def die_with_usage():
-    """ HELP MENU """
-    print 'display_song.py'
-    print 'T. Bertin-Mahieux (2010) tb2332@columbia.edu'
-    print 'to quickly display all we know about a song'
-    print 'usage:'
-    print '   python display_song.py [FLAGS] <HDF5 file> <OPT: song idx> <OPT: getter>'
-    print 'example:'
-    print '   python display_song.py mysong.h5 0 danceability'
-    print 'INPUTS'
-    print '   <HDF5 file>  - any song / aggregate /summary file'
-    print '   <song idx>   - if file contains many songs, specify one'
-    print '                  starting at 0 (OPTIONAL)'
-    print '   <getter>     - if you want only one field, you can specify it'
-    print '                  e.g. "get_artist_name" or "artist_name" (OPTIONAL)'
-    print 'FLAGS'
-    print '   -summary     - if you use a file that does not have all fields,'
-    print '                  use this flag. If not, you might get an error!'
-    print '                  Specifically desgin to display summary files'
+#    """ HELP MENU """
+#    print 'display_song.py'
+#    print 'T. Bertin-Mahieux (2010) tb2332@columbia.edu'
+#    print 'to quickly display all we know about a song'
+#    print 'usage:'
+#    print '   python display_song.py [FLAGS] <HDF5 file> <OPT: song idx> <OPT: getter>'
+#    print 'example:'
+#    print '   python display_song.py mysong.h5 0 danceability'
+#    print 'INPUTS'
+#    print '   <HDF5 file>  - any song / aggregate /summary file'
+#    print '   <song idx>   - if file contains many songs, specify one'
+#    print '                  starting at 0 (OPTIONAL)'
+#    print '   <getter>     - if you want only one field, you can specify it'
+#    print '                  e.g. "get_artist_name" or "artist_name" (OPTIONAL)'
+#    print 'FLAGS'
+#    print '   -summary     - if you use a file that does not have all fields,'
+#    print '                  use this flag. If not, you might get an error!'
+#    print '                  Specifically desgin to display summary files'
     sys.exit(0)
 
 from generate_paths import get_all_files
@@ -59,17 +59,16 @@ def get_features(hdf5path, feat = None):
 
     # sanity check
     if not os.path.isfile(hdf5path):
-        print 'ERROR: file',hdf5path,'does not exist.'
         sys.exit(0)
     h5 = hdf5_getters.open_h5_file_read(hdf5path)
     numSongs = hdf5_getters.get_num_songs(h5)
     if songidx >= numSongs:
-        print 'ERROR: file contains only',numSongs
         h5.close()
         sys.exit(0)
 
     # get all getters
     getters = filter(lambda x: x[:4] == 'get_', hdf5_getters.__dict__.keys())
+    getters = list(getters)
     getters.remove("get_num_songs") # special case
     if onegetter == 'num_songs' or onegetter == 'get_num_songs':
         getters = []
@@ -79,7 +78,6 @@ def get_features(hdf5path, feat = None):
         try:
             getters.index(onegetter)
         except ValueError:
-            print 'ERROR: getter requested:',onegetter,'does not exist.'
             h5.close()
             sys.exit(0)
         getters = [onegetter]
@@ -92,19 +90,18 @@ def get_features(hdf5path, feat = None):
             start = timeit.timeit()
             res = hdf5_getters.__getattribute__(getter)(h5,songidx)
             end = timeit.timeit()
-        except AttributeError, e:
+        except:
             if summary:
                 continue
             else:
-                print e
-                print 'forgot -summary flag? specified wrong getter?'
+                pass
         features[getter[4:]] = res
 
     h5.close()
     
     return features
     
-def get_features_simple(hdf5path, getters, limit=500):
+def get_features_simple(hdf5path, getters, limit=50000):
 
 
     songidx = 0
@@ -123,11 +120,11 @@ def get_features_simple(hdf5path, getters, limit=500):
     for getter in getters:
         try:
             res = hdf5_getters.__getattribute__(getter)(h5,songidx)
-        except AttributeError, e:
+        except:
             res = None
         if isinstance(res, np.ndarray):
             if len(res) > limit:
-                beg = (len(res)-limit)/2
+                beg = int((len(res)-limit)/2)
                 res = res[beg:beg+limit]
             res = res.tolist()
         features.append(res)
