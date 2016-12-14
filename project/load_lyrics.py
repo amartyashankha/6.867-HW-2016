@@ -1,17 +1,17 @@
 import numpy as np
 from scipy.sparse import dok_matrix
 
-#import matplotlib.pyplot as plt
-import sys
+import matplotlib.pyplot as plt
+import sys 
 import os
 #from joblib impoort Parallel, delayed
 sys.path.append(sys.path[0]+'/feature_extractor')
 from get_features import get_features
 
-#plt.style.use('fivethirtyeight')
-#plt.rcParams['axes.facecolor'] = 'white'
-#plt.rcParams['axes.edgecolor'] = 'black'
-#plt.rcParams['figure.autolayout'] = 'true'
+plt.style.use('fivethirtyeight')
+plt.rcParams['axes.facecolor'] = 'white'
+plt.rcParams['axes.edgecolor'] = 'black'
+plt.rcParams['figure.autolayout'] = 'true'
 
 def looad_txt_data():
 	years = {}
@@ -104,7 +104,7 @@ def plot_years(word_str, div = 5):
     plt.plot(yrs, num)
     plt.show()
 
-def load_class(norm, min_year = 1960, max_year = 2016, divs = 10, one_hot = True, dense = False):
+def load_class(norm, min_year = 1965, max_year = 2016, divs = 10, one_hot = True, dense = False):
     (words, songs) = load(norm and (not one_hot))
     #print len(songs)
     X = dok_matrix((len(songs), 5001), dtype = np.float32)
@@ -124,12 +124,19 @@ def load_class(norm, min_year = 1960, max_year = 2016, divs = 10, one_hot = True
         X = X.toarray() # remove this later to keep sparse matrix
 
     Y = np.array(Y)
-    Y = np.clip(Y, min_year, max_year)
+    #Y = np.clip(Y, min_year, max_year)
+    pres = (Y>min_year)
+    print X.shape, Y.shape
+    X = X[pres]
+    Y = Y[pres]
+    print X.shape, Y.shape
+
     Y = ((Y - min_year)/divs).astype(int)
+    
 
     return (X,Y,ids, words)
 
-#plot_years('yonder')
+#plot_years('hate')
 
 #if __name__ == '__main__':
     #save_year_data()

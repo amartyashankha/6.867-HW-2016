@@ -1,7 +1,6 @@
 from load_lyrics import *
 import numpy as np
 import matplotlib.pyplot as plt
-from reweight import get_weights
 
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.ensemble import AdaBoostClassifier
@@ -33,33 +32,22 @@ def test_classifiers(test_ratio = 0.1, norm = False, one_hot = True, val_ratio =
 
     trainX = X[:n_samp - n_test - n_val]
     trainY = Y[:n_samp - n_test - n_val]
-    trainW = get_weights(trainY)
-    print max(trainW), min(trainW)
-    
     testX  = X[n_samp - n_test - n_val: n_samp - n_val]
     testY  = Y[n_samp - n_test - n_val: n_samp - n_val]
-    testW = get_weights(testY)
-
     valX   = X[n_samp - n_val: ]
     valY   = Y[n_samp - n_val: ]
-    valW = get_weights(valY)
-
-    base = [np.mean(trainY)] * len(testY)
-    brmse = np.sqrt(metrics.mean_squared_error(testY, base, sample_weight = testW))
-    print "Baseline RMSE: ", brmse
 
     alphas = np.arange(0, 1000, 100)
     res    = []
 
     best = (1000000, None)
     for alpha in alphas:
-        #classifier = Ridge(alpha = alpha)
-        classifier = LinearRegression(n_jobs = -1)
-        classifier.fit(trainX, trainY, sample_weight = trainW)
+        classifier = Ridge(alpha = alpha)
+        classifier.fit(trainX, trainY)
 
         print "Finished fitting ", alpha
         pred = classifier.predict(valX)
-        rmse = np.sqrt(metrics.mean_squared_error(valY, pred, sample_weight = valW))
+        rmse = np.sqrt(metrics.mean_squared_error(valY, pred))
         best = min(best, (rmse, alpha))
         print "Validation RMSE: ", rmse
         res.append(rmse)
@@ -68,7 +56,7 @@ def test_classifiers(test_ratio = 0.1, norm = False, one_hot = True, val_ratio =
     classifier = Ridge(alpha = alpha)
     classifier.fit(trainX, trainY)
     pred = classifier.predict(testX)
-    rmse = np.sqrt(metrics.mean_squared_error(testY, pred, sample_weight = testW))
+    rmse = np.sqrt(metrics.mean_squared_error(testY, pred))
     print "Testing RMSE: ", rmse
 
     plt.plot(alphas, res)
