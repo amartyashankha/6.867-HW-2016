@@ -49,12 +49,14 @@ def test_classifiers(test_ratio = 0.1, norm = False, one_hot = True, val_ratio =
     print "Baseline RMSE: ", brmse
 
     alphas = np.arange(0, 1000, 100)
+    alphas[0] = 5
     res    = []
 
     best = (1000000, None)
     for alpha in alphas:
-        #classifier = Ridge(alpha = alpha)
-        classifier = LinearRegression(n_jobs = -1)
+        print alpha
+        classifier = Ridge(alpha = alpha)
+        #classifier = LinearRegression(n_jobs = -1)
         classifier.fit(trainX, trainY, sample_weight = trainW)
 
         print "Finished fitting ", alpha

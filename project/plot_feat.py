@@ -1,6 +1,7 @@
 from load_lyrics import *
 import numpy as np
 import matplotlib.pyplot as plt
+from reweight import get_weights
 
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.linear_model import Ridge
@@ -30,8 +31,11 @@ def test_classifiers(test_ratio = 0.05):
         n_test = int(test_ratio * n_samp)
         trainX = X[:n_samp - n_test]
         trainY = Y[:n_samp - n_test]
+        trainW = get_weights(trainY)
+
         testX = X[n_samp - n_test:]
         testY = Y[n_samp - n_test:]
+        testW = get_weights(testY)
 
         res = []
         for feat in feats:
@@ -40,11 +44,11 @@ def test_classifiers(test_ratio = 0.05):
             tstX = ch2.transform(testX)       
             lr = LinearRegression(n_jobs = -1)
 
-            lr.fit(trX, trainY)
+            lr.fit(trX, trainY, sample_weight = trainW)
             print "Finished fitting " + str(feat)
 
             pred = lr.predict(tstX)
-            mse = np.sqrt(metrics.mean_squared_error(testY, pred))
+            mse = np.sqrt(metrics.mean_squared_error(testY, pred, sample_weight = testW))
             print "RMSE of prediction: ", mse
             res.append(mse)
 

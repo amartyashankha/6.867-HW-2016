@@ -104,7 +104,7 @@ def plot_years(word_str, div = 5):
     plt.plot(yrs, num)
     plt.show()
 
-def load_class(norm, min_year = 1965, max_year = 2016, divs = 10, one_hot = True, dense = False):
+def load_class(norm, min_year = 1960, max_year = 2016, divs = 10, one_hot = True, dense = False):
     (words, songs) = load(norm and (not one_hot))
     #print len(songs)
     X = dok_matrix((len(songs), 5001), dtype = np.float32)
@@ -124,19 +124,27 @@ def load_class(norm, min_year = 1965, max_year = 2016, divs = 10, one_hot = True
         X = X.toarray() # remove this later to keep sparse matrix
 
     Y = np.array(Y)
-    #Y = np.clip(Y, min_year, max_year)
-    pres = (Y>min_year)
-    print X.shape, Y.shape
-    X = X[pres]
-    Y = Y[pres]
-    print X.shape, Y.shape
-
+    Y = np.clip(Y, min_year, max_year)
     Y = ((Y - min_year)/divs).astype(int)
-    
 
     return (X,Y,ids, words)
 
+def plot_dist():
+    load_year_data()
+    years = year_dic.values()
+
+    plt.hist(years, 30, alpha = 0.75)
+
+    ax = plt.gca()
+    ax.ticklabel_format(useOffset = False)
+    plt.xlabel('Year')
+    plt.ylabel('Count')
+    plt.title('MusiXMatch Year distribution')
+    plt.show()
+
+
 #plot_years('hate')
 
-#if __name__ == '__main__':
+if __name__ == '__main__':
+    plot_dist()
     #save_year_data()
